@@ -1,0 +1,84 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Data Table{% endblock %}
+
+{% block body %}
+<style>
+    .table-wrapper { margin: 1em auto; width: 90%; font: 18px/1.5 sans-serif; }
+    .table-wrapper code { background: #F5F5F5; padding: 2px 6px; }
+</style>
+<p class="container h1 justify-content-center">Live client data</p>
+<div class="table-wrapper">
+    <table id="data_table" class="display" style="width:100%">
+    <label for="client_page">Select client page:</label>
+    <select name="client_page" id="client_page">
+        <option value="0">1</option>
+        <option value="1">2</option>
+        <option value="2">3</option>
+        <option value="3">4</option>
+        <option value="4">5</option>
+        <option value="5">6</option>
+        <option value="6">7</option>
+        <option value="7">8</option>
+    </select>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Customer Has Outgoing Activity si804</th>
+                <th>Customer Core Market</th>
+                <th>Customer Billing Minutes Called To Nicaragua</th>
+                <th>Customer Billing Minutes Called To Macau</th>
+                <th>Comments</th>
+            </tr>
+        </thead>
+    </table>
+</div>
+{% endblock %}
+{% block javascripts %}
+<script>
+    $('#data_table thead tr').clone(true).appendTo( '#data_table thead' );
+    $('#data_table thead tr:eq(1) th').each( function (i) {
+        var title = $(this).text();
+        $(this).html( '<input type="text" placeholder="Search " />' );
+ 
+        $( 'input', this ).on( 'keyup change', function () {
+            if ( table.column(i).search() !== this.value ) {
+                table
+                    .column(i)
+                    .search( this.value )
+                    .draw();
+            }
+        } );
+    } );
+
+    var table = $('#data_table').DataTable( {
+        orderCellsTop: true,
+        fixedHeader: true,
+        ajax: "/api/data/0",
+            "columns": [
+                { "data": "id" },
+                { "data": "customer_has_outgoing_activity_si804" },
+                { "data": "customer_core_market" },
+                { "data": "customer_billing_minutes_called_to_nicaragua" },
+                { "data": "customer_billing_minutes_called_to_macau" },      
+                {
+                    "data": null,
+                    className: "center",
+                    defaultContent: '<input type="text" id="comment" name="comment">'
+                }
+            ]
+    } );
+
+    setInterval( function () {
+        table.ajax.reload();
+    }, 30000 );
+
+    let pageSelect = document.getElementById("client_page");
+
+    pageSelect.addEventListener('change', changePage);
+
+    function changePage() {
+        table.ajax.url( `/api/data/${this.value}` ).load();
+    }
+</script>
+{% endblock %}
